@@ -1,6 +1,6 @@
-# pawse 설계 개요 (초안)
+# pawfect 설계 개요 (초안)
 
-> pawse — 잠시 멈춰 함께했던 순간을 돌아본다.
+> pawfect — paw(발자국)와 perfect(완벽한)를 합친 이름. 함께했던 모든 순간은 그 자체로 완벽했다는 뜻.
 > 반려동물과 이별했거나 이별을 준비하는 사람을 위한 앱.
 
 상태: **확정** (2026-11-12). 결정 사항은 맨 아래 6절 참고.
@@ -13,7 +13,7 @@
 | 서버 | Spring Boot 4.1.2, Java 21, Gradle |
 | DB | PostgreSQL 17 (로컬은 `compose.yaml`, 포트 54321) |
 | 클라이언트 | Flutter 모바일 앱 (서버는 화면 없이 REST API만 제공) |
-| 패키지 | `org.example.pawse` |
+| 패키지 | `org.example.pawfect` |
 
 ```
 Flutter 앱 ──REST──▶ Spring Boot ──▶ PostgreSQL
@@ -26,7 +26,7 @@ Flutter 앱 ──REST──▶ Spring Boot ──▶ PostgreSQL
 패키지는 기능(도메인) 단위로 나눈다.
 
 ```
-org.example.pawse
+org.example.pawfect
 ├── member      회원, 인증
 ├── pet         반려동물 프로필, 페르소나 재료
 ├── album       사진, 타임라인

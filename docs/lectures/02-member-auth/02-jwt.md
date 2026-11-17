@@ -14,16 +14,16 @@ eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0.(서명 값)
 ```bash
 # 직접 풀어 보자
 echo 'eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0=' | base64 -d   # 끝의 = 는 패딩. JWT에서는 생략되어 있어 직접 붙여야 한다
-# {"iss":"pawse","sub":"42"}
+# {"iss":"pawfect","sub":"42"}
 ```
 
 | 덩어리 | 내용 | 예 |
 | --- | --- | --- |
 | Header | 서명 알고리즘 | `{"alg":"HS256"}` |
-| Payload | 클레임(주장) 모음 | `{"iss":"pawse","sub":"42","iat":...,"exp":...}` |
+| Payload | 클레임(주장) 모음 | `{"iss":"pawfect","sub":"42","iat":...,"exp":...}` |
 | Signature | 앞 두 덩어리를 비밀키로 서명한 값 | `HMAC-SHA256(header.payload, 비밀키)` |
 
-**결론 1: payload에 비밀번호나 개인정보를 넣지 않는다.** 읽을 수 있기 때문이다. pawse는 회원 id만 넣는다.
+**결론 1: payload에 비밀번호나 개인정보를 넣지 않는다.** 읽을 수 있기 때문이다. pawfect는 회원 id만 넣는다.
 
 ## 2. 서명이 하는 일
 
@@ -43,9 +43,9 @@ echo 'eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0=' | base64 -d   # 끝의 = 는 패딩.
 
 표준 이름이 정해져 있다(등록 클레임).
 
-| 이름 | 뜻 | pawse에서 |
+| 이름 | 뜻 | pawfect에서 |
 | --- | --- | --- |
-| `iss` | 발급자 | `"pawse"`. 파싱 때 `requireIssuer`로 확인 |
+| `iss` | 발급자 | `"pawfect"`. 파싱 때 `requireIssuer`로 확인 |
 | `sub` | 주체. 누구의 토큰인가 | 회원 id 문자열 |
 | `iat` | 발급 시각 | 발급 순간 |
 | `exp` | 만료 시각 | 발급 + 30분 |
@@ -60,13 +60,13 @@ echo 'eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0=' | base64 -d   # 끝의 = 는 패딩.
 | 적합 | 서버가 발급과 검증을 둘 다 함 | 발급 서버와 검증 서버가 다름 |
 | 단점 | 검증하는 쪽도 비밀키를 알아야 함 | 키 관리가 더 복잡 |
 
-pawse는 서버 하나가 발급·검증을 다 하므로 HS256이면 충분하다. HS256 키는 **256비트(32바이트) 이상**이어야 한다. `JwtProvider` 생성자의 `Keys.hmacShaKeyFor`가 짧으면 예외를 던지고, 그러면 서버가 기동 단계에서 죽는다. 약한 키로 조용히 운영되는 것보다 낫다(`JwtProviderTest.키가_256비트보다_짧으면_기동_단계에서_실패한다`).
+pawfect는 서버 하나가 발급·검증을 다 하므로 HS256이면 충분하다. HS256 키는 **256비트(32바이트) 이상**이어야 한다. `JwtProvider` 생성자의 `Keys.hmacShaKeyFor`가 짧으면 예외를 던지고, 그러면 서버가 기동 단계에서 죽는다. 약한 키로 조용히 운영되는 것보다 낫다(`JwtProviderTest.키가_256비트보다_짧으면_기동_단계에서_실패한다`).
 
 ## 5. 코드 읽기
 
 ```java
 Jwts.builder()
-    .issuer("pawse")
+    .issuer("pawfect")
     .subject(String.valueOf(memberId))
     .issuedAt(now)
     .expiration(new Date(now.getTime() + 유효시간))
@@ -77,7 +77,7 @@ Jwts.builder()
 ```java
 Jwts.parser()
     .verifyWith(key)        // 서명 검증용 키
-    .requireIssuer("pawse") // iss가 다르면 거부
+    .requireIssuer("pawfect") // iss가 다르면 거부
     .build()
     .parseSignedClaims(token)   // 서명·만료·형식을 한꺼번에 검증
     .getPayload();
@@ -87,7 +87,7 @@ Jwts.parser()
 
 ## 6. 위험과 대응
 
-| 위험 | 설명 | pawse의 대응 |
+| 위험 | 설명 | pawfect의 대응 |
 | --- | --- | --- |
 | 토큰 탈취 | 가진 사람이 곧 주인 | HTTPS 전제, 유효시간 30분으로 짧게 |
 | 비밀키 유출 | 임의 토큰 위조 가능 | 운영은 환경변수 `JWT_SECRET`, 저장소에 운영 키 커밋 금지 |

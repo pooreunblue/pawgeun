@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-이 문서는 Claude Code가 본 프로젝트(pawse)에서 작업할 때 따라야 할 규칙을 정의한다.
+이 문서는 Claude Code가 본 프로젝트(pawfect)에서 작업할 때 따라야 할 규칙을 정의한다.
 
 ## 0. 작업 시작 전 모델 / Effort 제안 규칙 (필수)
 
