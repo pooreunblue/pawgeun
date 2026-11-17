@@ -57,9 +57,9 @@ mockMvc.perform(get("/api/members/me").header("Authorization", "Bearer " + token
 `src/test/resources/application.properties`가 운영 설정을 덮어쓴다.
 
 ```
-spring.datasource.url=jdbc:h2:mem:pawfect;MODE=PostgreSQL   # 인메모리 H2
+spring.datasource.url=jdbc:h2:mem:pawgeun;MODE=PostgreSQL   # 인메모리 H2
 spring.docker.compose.enabled=false                         # 테스트에서 Docker 안 띄움
-pawfect.jwt.secret=test-...                                   # 테스트 전용 키
+pawgeun.jwt.secret=test-...                                   # 테스트 전용 키
 ```
 
 장점: 빠르고 Docker가 필요 없다. 단점: H2는 PostgreSQL이 아니다. 운영 DB 고유 기능(JSON 컬럼, 특정 쿼리)을 쓰기 시작하면 Testcontainers로 진짜 PostgreSQL을 띄우는 쪽으로 옮긴다. 결정 근거는 `docs/decisions/member-auth.md`에 있다.

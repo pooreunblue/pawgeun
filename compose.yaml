@@ -2,13 +2,13 @@ services:
   postgres:
     image: 'postgres:17'
     environment:
-      - 'POSTGRES_DB=pawfect'
-      - 'POSTGRES_USER=pawfect'
-      - 'POSTGRES_PASSWORD=pawfect'
+      - 'POSTGRES_DB=pawgeun'
+      - 'POSTGRES_USER=pawgeun'
+      - 'POSTGRES_PASSWORD=pawgeun'
     ports:
       - '54321:5432'
     volumes:
-      - 'pawfect-db:/var/lib/postgresql/data'
+      - 'pawgeun-db:/var/lib/postgresql/data'
 
 volumes:
-  pawfect-db:
+  pawgeun-db:
