@@ -33,7 +33,7 @@ public class JwtProvider {
                 .subject(String.valueOf(memberId))
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + properties.accessTokenValidity().toMillis()))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 

@@ -138,4 +138,32 @@ class AuthApiTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("MEMBER_NOT_FOUND"));
     }
+
+    @Test
+    void 허용되지_않는_메서드는_405() throws Exception {
+        String token = loginAfterSignUp();
+        mockMvc.perform(post("/api/members/me").header("Authorization", "Bearer " + token))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.code").value("METHOD_NOT_ALLOWED"));
+    }
+
+    @Test
+    void 지원하지_않는_Content_Type은_415() throws Exception {
+        mockMvc.perform(post("/api/auth/signup").contentType(MediaType.TEXT_PLAIN).content("x"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.code").value("UNSUPPORTED_MEDIA_TYPE"));
+    }
+
+    @Test
+    void 없는_주소는_404() throws Exception {
+        String token = loginAfterSignUp();
+        mockMvc.perform(get("/api/nothing").header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+    }
+
+    private String loginAfterSignUp() throws Exception {
+        signUp("a@test.com");
+        return loginAndGetToken("a@test.com", "password1");
+    }
 }
