@@ -167,5 +167,5 @@ Claude Code가 이 프로젝트에서 일할 때 따라야 할 규칙 문서다.
 1. `git log --oneline --graph --all`로 지금까지의 브랜치와 커밋 흐름을 보자. `feature/member-auth`와 `develop`이 어디서 갈라졌는가?
 2. 연습용 브랜치 `feature/practice`를 만들어 파일 하나를 고치고 두 번에 나누어 커밋해 보자. 메시지가 규칙을 따르는가? 끝나면 `git checkout develop`으로 먼저 이동한 뒤(지금 있는 브랜치는 지울 수 없다) `git branch -D feature/practice`로 지운다.
 3. `git diff origin/develop..origin/feature/member-auth --stat`으로 두 브랜치의 차이를 파일 단위로 보자. (새로 clone했다면 로컬 브랜치가 없으니 `origin/`을 붙인 이름을 쓴다)
-4. 일부러 `.gitignore`에 `docs/`를 넣었다가 `git status`가 어떻게 변하는지 보고 원복해 보자.
+4. `docs/` 아래에 추적하지 않는 임시 파일을 만든다(`touch docs/tmp-practice.txt`). `git status`에 `Untracked files`로 나타나는지 본다. 이제 `.gitignore`에 `docs/tmp-practice.txt`를 추가하고 `git status`를 다시 보자. 임시 파일이 사라지고 `.gitignore` 수정만 남는다. (이미 추적 중인 파일은 `.gitignore`를 추가해도 계속 추적된다.) 끝나면 규칙을 지우고 `rm docs/tmp-practice.txt`로 정리한다.
 5. 생각해 보기: 혼자 하는 프로젝트에서도 PR을 만드는 이유는 무엇일까? (힌트: 리뷰어가 없어도 남는 것)
