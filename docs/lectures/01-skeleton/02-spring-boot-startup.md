@@ -102,7 +102,7 @@ public class AuthService {
 | `@ConditionalOnMissingBean` | 사용자가 직접 같은 빈을 안 만들었을 때 |
 | `@ConditionalOnProperty` | 설정값이 특정 값일 때 |
 
-**`@ConditionalOnMissingBean` 덕분에 내가 정의하면 내 것이 우선한다.** 2단계에서 `SecurityConfig`가 `SecurityFilterChain` 빈을 직접 만들자 Spring Security의 기본 필터 체인(모든 주소 차단, 기본 로그인 폼)이 물러난 것이 이 원리다.
+**`@ConditionalOnMissingBean` 덕분에 내가 정의하면 내 것이 우선한다.** 2단계에서 `SecurityConfig`가 `SecurityFilterChain` 빈을 직접 만들자 Spring Security의 기본 필터 체인(모든 주소에 인증 요구, 기본 로그인 폼)이 물러난 것이 이 원리다.
 
 그래서 의존성이 곧 기능이다.
 
