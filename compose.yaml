@@ -6,7 +6,7 @@ services:
       - 'POSTGRES_USER=pawgeun'
       - 'POSTGRES_PASSWORD=pawgeun'
     ports:
-      - '54321:5432'
+      - '127.0.0.1:54321:5432'
     volumes:
       - 'pawgeun-db:/var/lib/postgresql/data'
 
