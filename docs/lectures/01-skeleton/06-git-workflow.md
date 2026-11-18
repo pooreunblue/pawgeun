@@ -86,7 +86,7 @@ refactor : 프로젝트명을 pawfect에서 pawgeun으로 변경
 
 이점: 리뷰어가 한 번에 한 가지만 본다. 문제가 생기면 해당 커밋만 `revert`할 수 있다. `git log`가 작업의 이야기가 된다. 기준은 "커밋 메시지를 한 문장으로 쓸 수 있는가". 쓸 수 없으면 너무 크다. 반대로 "고쳐쓰기 1", "고쳐쓰기 2" 같은 조각 커밋은 합친다.
 
-**커밋 전에 `git status`와 `git diff`로 담길 내용을 확인한다.** `git add .`나 `git add -A`는 의도하지 않은 파일(비밀값, 빌드 산출물)을 담기 쉬워서, 담을 것을 이름으로 고르는 편이 안전하다.
+**커밋 전에 `git status`와 `git diff --cached`(add한 내용을 보여준다)로 담길 내용을 확인한다.** `git add .`나 `git add -A`는 의도하지 않은 파일(비밀값, 빌드 산출물)을 담기 쉬워서, 담을 것을 이름으로 고르는 편이 안전하다.
 
 ## 4. Pull Request와 리뷰
 
@@ -130,6 +130,7 @@ build/ , .gradle/        빌드 산출물과 캐시 (다시 만들 수 있다)
 | 아직 add 안 한 수정을 버리기 | `git restore 파일` | 수정이 사라진다. 복구 불가 |
 | add한 것을 되돌리기 | `git restore --staged 파일` | 안전 |
 | 이미 push한 커밋 취소 | `git revert 커밋` | 안전. 취소하는 새 커밋을 만든다 |
+| 머지 커밋 취소 | `git revert -m 1 커밋` | 안전. `-m 1`은 첫 번째 부모(보통 `develop` 쪽)를 기준으로 하라는 뜻. `git show 커밋`으로 부모 확인 |
 | 커밋을 지우고 되돌아가기 | `git reset --hard 커밋` | **위험.** 작업이 사라진다. push한 이력에는 쓰지 않는다 |
 
 공유된(push된) 이력은 고쳐 쓰지 않고 `revert`로 덮는다. 다른 사람이 그 이력 위에서 작업했을 수 있어서다.
@@ -146,7 +147,7 @@ build/ , .gradle/        빌드 산출물과 캐시 (다시 만들 수 있다)
 >>>>>>> develop
 ```
 
-두 내용을 보고 의도한 최종 모양으로 직접 고치고 마커를 지운 뒤 `add` → `commit`한다. 충돌을 줄이는 습관: 브랜치를 짧게 유지하고, 작업 도중 `git fetch` 후 `develop`을 가끔 합쳐서 차이가 커지지 않게 한다.
+두 내용을 보고 의도한 최종 모양으로 직접 고치고 마커를 지운 뒤 `add` → `commit`한다. 충돌을 줄이는 습관: 브랜치를 짧게 유지하고, 작업 도중 `git fetch` 후 `git merge origin/develop`(fetch는 `origin/develop`만 갱신한다)으로 가끔 합쳐서 차이가 커지지 않게 한다.
 
 ## 8. 기록을 남기는 습관
 
@@ -164,7 +165,7 @@ Claude Code가 이 프로젝트에서 일할 때 따라야 할 규칙 문서다.
 ## 직접 해 보기
 
 1. `git log --oneline --graph --all`로 지금까지의 브랜치와 커밋 흐름을 보자. `feature/member-auth`와 `develop`이 어디서 갈라졌는가?
-2. 연습용 브랜치 `feature/practice`를 만들어 파일 하나를 고치고 두 번에 나누어 커밋해 보자. 메시지가 규칙을 따르는가? 끝나면 `git branch -D feature/practice`로 지운다.
+2. 연습용 브랜치 `feature/practice`를 만들어 파일 하나를 고치고 두 번에 나누어 커밋해 보자. 메시지가 규칙을 따르는가? 끝나면 `git checkout develop`으로 먼저 이동한 뒤(지금 있는 브랜치는 지울 수 없다) `git branch -D feature/practice`로 지운다.
 3. `git diff develop..feature/member-auth --stat`으로 두 브랜치의 차이를 파일 단위로 보자.
 4. 일부러 `.gitignore`에 `docs/`를 넣었다가 `git status`가 어떻게 변하는지 보고 원복해 보자.
 5. 생각해 보기: 혼자 하는 프로젝트에서도 PR을 만드는 이유는 무엇일까? (힌트: 리뷰어가 없어도 남는 것)
