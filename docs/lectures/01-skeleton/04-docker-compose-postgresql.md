@@ -71,6 +71,7 @@ developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 3. 컨테이너의 이미지가 postgres인 것을 알아보고, 포트와 계정(DB, USER, PASSWORD)을 읽는다
 4. spring.datasource.url / username / password 를 그 값으로 자동 설정한다
 5. 앱을 종료하면 컨테이너도 stop 한다 (삭제는 아님, 데이터는 보존)
+   단, `docker compose up -d`로 미리 켜 둔 컨테이너는 재사용만 하고 멈추지 않는다. 직접 `docker compose stop`으로 멈춘다.
 ```
 
 그래서 `application.properties`에 DB 주소가 한 줄도 없다. 값은 compose 파일 한 곳에서만 관리된다. "단 하나의 진실 공급원"이다.
