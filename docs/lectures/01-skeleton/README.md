@@ -35,9 +35,9 @@ pawgeun/
 ```
 IntelliJ ▶ 실행 (또는 ./gradlew bootRun)
   → Gradle이 build.gradle대로 의존성을 받아 컴파일 (01)
-  → spring-boot-docker-compose가 compose.yaml을 보고 PostgreSQL 컨테이너를 띄움 (04)
   → main()이 SpringApplication.run 호출 (02)
   → application.properties를 읽고 (03)
+  → spring-boot-docker-compose가 compose.yaml을 보고 PostgreSQL 컨테이너를 띄움 (04)
   → 자동 구성이 classpath를 보고 DataSource, JPA, MVC 등을 만들어 연결 (02)
   → 내장 Tomcat이 8080에서 요청 대기
 ```

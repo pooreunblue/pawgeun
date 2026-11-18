@@ -22,7 +22,7 @@ src/
 
 ```
 org.example.pawgeun
-└── group(org.example) + 프로젝트 이름(pawgeun)
+└── group(org.example) + 프로젝트 이름(pawgeun)   ← 관례. 실제 패키지는 package 선언이 정한다
 ```
 
 관례상 도메인을 뒤집어 쓴다(`example.org` → `org.example`). 전 세계에서 겹치지 않게 하려는 관습이다. 메인 클래스(`PawgeunApplication`)는 이 **최상위 패키지**에 둔다(02강: 스캔 범위).

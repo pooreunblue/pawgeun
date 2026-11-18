@@ -54,7 +54,7 @@ java {
 }
 ```
 
-- `group`: 패키지 이름의 뿌리. 프로젝트 이름과 합쳐 `org.example.pawgeun` 패키지가 된다.
+- `group`: 라이브러리를 배포할 때 쓰는 식별자의 일부. 실제 패키지는 `.java` 파일의 `package` 선언이 정하며, 관례상 group과 맞춰 `org.example.pawgeun`으로 쓴다.
 - `SNAPSHOT`: "개발 중인 버전"이라는 관례적 표시.
 - `toolchain`: **어떤 JDK로 컴파일할지**를 프로젝트가 정한다. 컴퓨터에 JDK 26이 기본으로 깔려 있어도 Gradle은 21을 찾아 쓴다. 팀원마다 JDK가 달라도 같은 결과를 내려는 장치다. 이 컴퓨터에는 JDK 17, 21, 26이 함께 있어서 특히 중요하다.
 
@@ -176,5 +176,5 @@ JDK가 맞지 않으면 "unsupported class file version" 같은 오류가 난다
 
 1. `./gradlew dependencies --configuration runtimeClasspath`를 실행해 보자. PostgreSQL 드라이버가 보이는가? `--configuration compileClasspath`에서는 어떤가?
 2. `build.gradle`에서 `runtimeOnly 'org.postgresql:postgresql'`을 `implementation`으로 바꿔도 동작은 같다. 그런데도 왜 `runtimeOnly`가 더 나은지 한 문장으로 설명해 보자. (확인 후 원복)
-3. `./gradlew bootJar` 후 `build/libs/`의 jar를 `java -jar`로 실행해 보자. 서버가 뜨지 않고 DataSource 관련 오류가 날 것이다. 왜일까? (힌트: `developmentOnly`로 선언한 docker-compose 지원은 jar에 들어가지 않는다. 그러면 DB 접속 정보는 누가 주는가? 03강의 환경변수 `SPRING_DATASOURCE_URL` 등으로 해결할 수 있다.)
+3. `./gradlew bootJar` 후 `build/libs/`의 jar를 `java -jar`로 실행해 보자. 서버가 뜨지 않고 DataSource 관련 오류가 날 것이다. 왜일까? (힌트: `developmentOnly`로 선언한 docker-compose 지원은 jar에 들어가지 않는다. 그러면 DB 접속 정보는 누가 주는가? 03강의 환경변수로 줄 수 있다. 단 PostgreSQL 컨테이너가 꺼져 있으면 접속할 수 없으니 먼저 `docker compose up -d`로 DB를 켠다. 그다음 `SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:54321/pawgeun`, `SPRING_DATASOURCE_USERNAME=pawgeun`, `SPRING_DATASOURCE_PASSWORD=pawgeun`을 주고 `java -jar`를 다시 실행해 보자.)
 4. `./gradlew build`를 두 번 연속 실행하고 두 번째 출력에서 `UP-TO-DATE`를 찾아 보자.

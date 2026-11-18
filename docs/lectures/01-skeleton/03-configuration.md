@@ -52,13 +52,13 @@ DB 접속 정보(`spring.datasource.url` 등)가 **없다는 점**에 주목하�
 
 ### 환경변수 이름 규칙 (Relaxed Binding)
 
-점과 하이픈을 대문자와 밑줄로 바꾼다.
+점은 밑줄로 바꾸고, 하이픈은 **제거**하고, 모두 대문자로 쓴다.
 
 | properties 키 | 환경변수 |
 | --- | --- |
 | `spring.datasource.url` | `SPRING_DATASOURCE_URL` |
-| `spring.jpa.hibernate.ddl-auto` | `SPRING_JPA_HIBERNATE_DDL_AUTO` |
-| `pawgeun.jwt.access-token-validity` | `PAWFECT_JWT_ACCESS_TOKEN_VALIDITY` |
+| `spring.jpa.hibernate.ddl-auto` | `SPRING_JPA_HIBERNATE_DDLAUTO` |
+| `pawgeun.jwt.access-token-validity` | `PAWGEUN_JWT_ACCESSTOKENVALIDITY` |
 
 ### 플레이스홀더와 기본값
 
@@ -115,7 +115,7 @@ spring.docker.compose.enabled=false
 ## 7. 비밀값 다루기
 
 - 비밀번호, API 키, JWT 비밀키는 **저장소에 커밋하지 않는다.** 한번 올라가면 지워도 Git 이력에 남는다.
-- `compose.yaml`의 DB 비밀번호(`pawgeun`)는 내 컴퓨터에서만 쓰는 개발용이라 괜찮다. 운영 DB 비밀번호는 환경변수나 비밀 저장소로 주입한다.
+- `compose.yaml`의 DB 비밀번호(`pawgeun`)는 내 컴퓨터에서만 쓰는 개발용이라 괜찮다. 포트도 `127.0.0.1`에만 열어(04강) 같은 네트워크의 다른 기기가 접속하지 못한다. 운영 DB 비밀번호는 환경변수나 비밀 저장소로 주입한다.
 - Gemini, Claude API 키(이후 단계)도 같은 방식으로 환경변수에서 읽는다.
 
 ## 직접 해 보기

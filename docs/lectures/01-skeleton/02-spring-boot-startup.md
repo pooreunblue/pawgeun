@@ -151,7 +151,8 @@ Started PawgeunApplication in 3.1 seconds
 
 | 오류 메시지 | 대개의 원인 |
 | --- | --- |
-| `Failed to configure a DataSource: 'url' attribute is not specified` | DB 접속 정보가 없음. Docker가 꺼져 compose 자동 연결이 안 됨 (04강) |
+| `Failed to configure a DataSource: 'url' attribute is not specified` | DB 접속 정보가 없음. `java -jar`로 실행했거나(compose 지원은 jar에 없음) compose 자동 연결이 동작하지 않음 (04강) |
+| Docker 연결 오류 (daemon에 접속 불가 등) | Docker가 꺼져 있음. DataSource 오류보다 먼저 난다 |
 | `Port 8080 was already in use` | 이미 다른 서버가 8080을 쓰는 중. 이전 실행을 종료하거나 `--server.port=8081` |
 | `No qualifying bean of type ...` | 빈이 없음. `@Service` 누락 또는 스캔 범위 밖 패키지 |
 | `UnsatisfiedDependencyException` | 생성자가 요구하는 빈을 못 만듦. 아래 `Caused by:` 확인 |
