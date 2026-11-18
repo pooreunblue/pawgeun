@@ -43,7 +43,7 @@ DB 접속 정보(`spring.datasource.url` 등)가 **없다는 점**에 주목하�
 ```
 1. 명령행 인자           java -jar app.jar --server.port=9090
 2. OS 환경변수           SERVER_PORT=9090
-3. 외부 설정 파일         jar 옆의 application.properties
+3. 외부 설정 파일         실행한 현재 디렉터리(또는 그 아래 config/)의 application.properties. jar가 있는 폴더가 아니다
 4. 클래스패스 설정 파일    src/main/resources/application.properties  (jar 안)
 5. 코드의 기본값
 ```
@@ -109,7 +109,7 @@ spring.docker.compose.enabled=false
 테스트 설정의 의도는 이렇다.
 
 - H2 인메모리 DB(`MODE=PostgreSQL`로 PostgreSQL 문법에 가깝게): Docker 없이 빠르게 돈다.
-- `create-drop`: 테스트마다 깨끗한 스키마.
+- `create-drop`: 컨텍스트가 시작될 때 스키마를 만들고 종료될 때 지운다. 스프링 테스트는 컨텍스트를 여러 테스트가 공유하므로 테스트마다 깨끗한 데이터가 보장되지는 않는다. 필요하면 `@BeforeEach` 정리나 `@Transactional` 롤백을 따로 쓴다.
 - `docker.compose.enabled=false`: 테스트에서 컨테이너를 띄우지 않는다. (Spring Boot는 기본적으로 테스트에서 compose를 건너뛰지만, 의도를 드러내려고 명시했다.)
 
 ## 7. 비밀값 다루기
