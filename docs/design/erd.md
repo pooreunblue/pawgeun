@@ -1,4 +1,4 @@
-# pawse ERD (초안)
+# pawgeun ERD (초안)
 
 관련 문서: [개요](overview.md) · [API](api.md)
 

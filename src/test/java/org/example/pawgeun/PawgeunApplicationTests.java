@@ -1,10 +1,10 @@
-package org.example.pawse;
+package org.example.pawgeun;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PawseApplicationTests {
+class PawgeunApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,13 +1,13 @@
-package org.example.pawse;
+package org.example.pawgeun;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PawseApplication {
+public class PawgeunApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PawseApplication.class, args);
+		SpringApplication.run(PawgeunApplication.class, args);
 	}
 
 }

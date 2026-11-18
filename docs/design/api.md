@@ -1,4 +1,4 @@
-# pawse API 목록 (초안)
+# pawgeun API 목록 (초안)
 
 관련 문서: [개요](overview.md) · [ERD](erd.md)
 
