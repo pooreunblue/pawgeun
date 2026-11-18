@@ -1,6 +1,5 @@
 package org.example.pawgeun.auth.service;
 
-import lombok.RequiredArgsConstructor;
 import org.example.pawgeun.auth.dto.LoginRequest;
 import org.example.pawgeun.auth.dto.TokenResponse;
 import org.example.pawgeun.auth.jwt.JwtProvider;
@@ -14,19 +13,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    /** 없는 이메일로 로그인할 때도 BCrypt 비교를 한 번 하게 해서 응답 시간 차이를 줄이는 더미 해시. */
+    private final String dummyHash;
+
+    public AuthService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtProvider = jwtProvider;
+        this.dummyHash = passwordEncoder.encode("dummy-password-for-timing");
+    }
 
     @Transactional(readOnly = true)
     public TokenResponse login(LoginRequest request) {
-        Member member = memberRepository.findByEmail(MemberService.normalizeEmail(request.email()))
-                .orElseThrow(() -> new BusinessException(ErrorCode.LOGIN_FAILED));
-        // 이메일이 없는 경우와 비밀번호가 틀린 경우를 같은 오류로 돌려, 가입 여부를 추측하지 못하게 한다.
-        if (!passwordEncoder.matches(request.password(), member.getPasswordHash())) {
+        Member member = memberRepository.findByEmail(MemberService.normalizeEmail(request.email())).orElse(null);
+        // 이메일이 없어도 더미 해시와 비교해 BCrypt 비용을 치른다. 같은 오류 + 비슷한 응답 시간으로 가입 여부를 숨긴다.
+        String hash = (member != null) ? member.getPasswordHash() : dummyHash;
+        boolean matches = passwordEncoder.matches(request.password(), hash);
+        if (member == null || !matches) {
             throw new BusinessException(ErrorCode.LOGIN_FAILED);
         }
         return TokenResponse.bearer(jwtProvider.createAccessToken(member.getId()),

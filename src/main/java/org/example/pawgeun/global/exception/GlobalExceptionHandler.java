@@ -2,6 +2,7 @@ package org.example.pawgeun.global.exception;
 
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -41,8 +42,12 @@ public class GlobalExceptionHandler {
     /** 허용되지 않는 HTTP 메서드(405). */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e) {
-        return ResponseEntity.status(ErrorCode.METHOD_NOT_ALLOWED.getStatus())
-                .body(ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED));
+        ResponseEntity.BodyBuilder builder = ResponseEntity.status(ErrorCode.METHOD_NOT_ALLOWED.getStatus());
+        if (e.getSupportedHttpMethods() != null) {
+            // RFC 9110: 405 응답은 허용되는 메서드를 Allow 헤더로 알려야 한다.
+            builder.allow(e.getSupportedHttpMethods().toArray(new HttpMethod[0]));
+        }
+        return builder.body(ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED));
     }
 
     /** 지원하지 않는 Content-Type(415). */
