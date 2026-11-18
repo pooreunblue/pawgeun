@@ -74,7 +74,7 @@ return ... ErrorResponse.of(ErrorCode.INTERNAL_ERROR); // 응답에는 고정 �
 
 ## 7. 아직 안 한 것
 
-- `DataIntegrityViolationException`(DB 제약 위반) 변환: 동시 가입 경합 때만 발생(05강).
+- `DataIntegrityViolationException`(DB 제약 위반): 동시 가입 경합은 `MemberService`에서 409로 변환한다(05강). 405/415/404도 전용 핸들러로 처리한다.
 - 요청 추적 id, 오류 로그 알림: 운영 단계에서.
 
 ## 직접 해 보기

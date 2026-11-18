@@ -27,7 +27,8 @@ Flutter 앱 ──REST──▶ Spring Boot ──▶ PostgreSQL
 
 ```
 org.example.pawgeun
-├── member      회원, 인증
+├── member      회원
+├── auth        로그인, JWT, 보안 설정
 ├── pet         반려동물 프로필, 페르소나 재료
 ├── album       사진, 타임라인
 ├── avatar      픽셀 아바타, 의상

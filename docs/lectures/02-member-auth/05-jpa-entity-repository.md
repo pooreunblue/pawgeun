@@ -58,14 +58,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
 ```java
 if (memberRepository.existsByEmail(normalized)) throw new BusinessException(EMAIL_DUPLICATED);
-memberRepository.save(member);
+memberRepository.saveAndFlush(member);
 ```
 
 위 `exists` 검사는 친절한 오류 메시지를 위한 것이다. 하지만 두 요청이 **동시에** 같은 이메일로 들어오면 둘 다 검사를 통과한다(검사와 저장 사이에 틈이 있다). 그때 최후의 방어선이 DB의 **`UNIQUE` 제약**이다. 하나는 `DataIntegrityViolationException`으로 실패한다.
 
-원칙: 중복 방지는 애플리케이션 검사만 믿지 말고 DB 제약으로 반드시 보장한다. 지금은 이 동시성 실패를 별도로 변환하지 않아 500이 된다. 현실적으로 드문 경우라 두었고, 필요하면 `GlobalExceptionHandler`에 `DataIntegrityViolationException` → `EMAIL_DUPLICATED` 변환을 추가한다.
+원칙: 중복 방지는 애플리케이션 검사만 믿지 말고 DB 제약으로 반드시 보장한다. 그래서 `signUp`은 `save` 대신 `saveAndFlush`로 즉시 DB에 반영하고, `DataIntegrityViolationException`을 잡아 `EMAIL_DUPLICATED`(409)로 바꾼다. `save`는 커밋 시점까지 SQL을 미루므로 이 `try` 안에서 예외를 잡을 수 없다.
 
-이메일은 저장 전에 `trim().toLowerCase()`로 정규화한다. `A@x.com`과 `a@x.com`이 서로 다른 계정이 되는 일을 막는다.
+이메일은 저장 전에 `trim().toLowerCase(Locale.ROOT)`로 정규화한다. `A@x.com`과 `a@x.com`이 서로 다른 계정이 되는 일을 막는다. `Locale.ROOT`는 JVM 언어 설정(예: 터키어의 `I`→`ı`)에 결과가 흔들리지 않게 한다.
 
 ## 6. 트랜잭션
 
@@ -79,7 +79,7 @@ public class MemberService {
     public Member signUp(...)
 ```
 
-- `readOnly = true`: 변경 감지(더티 체킹) 비용을 줄이고, 실수로 쓰는 것을 막는다. 조회가 대부분이니 기본값으로 두고, 쓰는 메서드만 `@Transactional`로 덮는다.
+- `readOnly = true`: 변경 감지(더티 체킹) 비용을 줄이는 **힌트**다. 쓰기를 막는 안전장치가 아니므로(Hibernate가 반영을 건너뛸 뿐이고, DB·드라이버에 따라 거부 여부가 다르다) 이것에 기대면 안 된다. 조회가 대부분이니 기본값으로 두고, 쓰는 메서드만 `@Transactional`로 덮는다.
 - 메서드가 예외 없이 끝나면 커밋, `RuntimeException`이 나면 롤백한다. 그래서 `BusinessException`은 `RuntimeException`이다.
 - **서비스 계층에 둔다.** 컨트롤러가 아니라 서비스가 "하나의 업무 단위"이기 때문이다.
 - **영속성 컨텍스트:** 트랜잭션 안에서 조회한 엔티티는 1차 캐시에 올라 있다. 값을 바꾸면 커밋 시점에 자동으로 `UPDATE`가 나간다(더티 체킹). 3단계부터 이 기능을 쓴다.
@@ -93,6 +93,6 @@ public class MemberService {
 ## 직접 해 보기
 
 1. `spring.jpa.show-sql=true`를 켜고 가입·로그인을 호출해 어떤 SQL이 나가는지 보자. `existsByEmail`은 어떤 쿼리인가?
-2. `MemberService.signUp`의 `@Transactional`을 지우고 실행해 보자. `readOnly = true`인 클래스 설정이 적용돼 어떤 문제가 생기는가? (힌트: 읽기 전용 트랜잭션에서의 쓰기)
+2. `MemberService.signUp`의 `@Transactional`을 지우고 실행해 보자. 가입 후 DB에 실제로 저장되는지 확인해 보자. 저장되든 안 되든, `readOnly`를 쓰기 방지 수단으로 믿으면 안 되는 이유를 설명해 보자.
 3. `existsByEmail` 검사를 주석 처리하고 같은 이메일로 두 번 가입해 보자. 어떤 예외와 상태 코드가 나오는가? 이것이 DB 유니크 제약의 역할이다.
 4. 생각해 보기: `Member`에 `@Setter`를 달면 안 되는 이유를, `passwordHash`를 예로 들어 설명해 보자.
