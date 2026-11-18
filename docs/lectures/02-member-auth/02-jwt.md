@@ -5,7 +5,7 @@ JWT(JSON Web Token)는 "누구인지"를 담은 JSON을 **서명해서** 문자�
 ## 1. 구조: 점 두 개로 나뉜 세 덩어리
 
 ```
-eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0.(서명 값)
+eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwYXdnZXVuIiwic3ViIjoiNDIifQ.(서명 값)
 └─ Header ─┘ └─── Payload ───┘ └─ Signature ─┘
 ```
 
@@ -13,7 +13,7 @@ eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0.(서명 값)
 
 ```bash
 # 직접 풀어 보자
-echo 'eyJpc3MiOiJwYXdzZSIsInN1YiI6IjQyIn0=' | base64 -d   # 끝의 = 는 패딩. JWT에서는 생략되어 있어 직접 붙여야 한다
+echo 'eyJpc3MiOiJwYXdnZXVuIiwic3ViIjoiNDIifQ=' | base64 -d   # 끝의 = 는 패딩. JWT에서는 생략되어 있어 직접 붙여야 한다
 # {"iss":"pawgeun","sub":"42"}
 ```
 
@@ -90,7 +90,7 @@ Jwts.parser()
 | 위험 | 설명 | pawgeun의 대응 |
 | --- | --- | --- |
 | 토큰 탈취 | 가진 사람이 곧 주인 | HTTPS 전제, 유효시간 30분으로 짧게 |
-| 비밀키 유출 | 임의 토큰 위조 가능 | 운영은 환경변수 `JWT_SECRET`, 저장소에 운영 키 커밋 금지 |
+| 비밀키 유출 | 임의 토큰 위조 가능 | 기본값 없이 환경변수 `JWT_SECRET`만 사용(없으면 서버가 안 뜸), 저장소에 키 커밋 금지 |
 | 서버가 토큰을 못 끊음 | 탈퇴·정지한 회원의 토큰이 만료 전까지 유효 | 요청마다 회원 존재를 조회(`getById`)하므로 탈퇴 회원은 `MEMBER_NOT_FOUND`. 완전한 폐기는 리프레시 토큰 도입 때 |
 | payload 노출 | 누구나 읽음 | 민감정보를 넣지 않음 |
 
@@ -103,7 +103,7 @@ Jwts.parser()
 리프레시 토큰: 김(2주). 액세스 토큰 재발급 전용 주소에서만 사용. 서버 DB에 저장해 폐기 가능.
 ```
 
-로그아웃·분실 시 서버가 리프레시 토큰을 지우면 재발급이 막혀 사실상 끊을 수 있다. 앱을 붙일 때 추가한다.
+로그아웃·분실 시 서버가 리프레시 토큰을 지우면 재발급이 막힌다. 이미 발급된 액세스 토큰은 만료(30분)까지 쓸 수 있으므로 접근은 길어도 그 안에 끊긴다. 즉시 차단하려면 별도의 블랙리스트가 필요하다. 앱을 붙일 때 추가한다.
 
 ## 직접 해 보기
 
