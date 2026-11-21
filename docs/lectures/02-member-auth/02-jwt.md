@@ -26,7 +26,9 @@ eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwYXdnZXVuIiwic3ViIjoiNDIifQ.(서명 값)
 ```bash
 # 직접 풀어 보자
 # 끝의 = 는 패딩이다. JWT에서는 생략되어 있어 직접 붙여야 한다
-echo 'eyJpc3MiOiJwYXdnZXVuIiwic3ViIjoiNDIifQ=' | base64 -d
+# Base64는 4글자 단위다. 이 덩어리는 38글자라 4의 배수(40)까지 = 를 2개 붙인다
+# (1개만 붙이면 마지막 } 가 잘려서 나온다)
+echo 'eyJpc3MiOiJwYXdnZXVuIiwic3ViIjoiNDIifQ==' | base64 -d
 # 출력: {"iss":"pawgeun","sub":"42"}
 ```
 
@@ -74,7 +76,14 @@ JWT의 도장은 특이하다. 미리 새겨 둔 도장이 아니라, **본문 �
 | `iat` | issued at | 발급 시각 | 발급 순간 | 발급일 |
 | `exp` | expiration | 만료 시각 | 발급 + 30분 | 유효기간 |
 
-`iss`를 확인하는 이유: 다른 서비스가 우연히 같은 키 방식으로 만든 토큰이 들어와도 "우리가 발급한 게 아니다"라고 거부하기 위해서다. 다른 구청에서 발급한 문서를 우리 구청이 받지 않는 것과 같다.
+`iss`를 확인하는 이유: 검사는 두 단계로 나뉜다.
+
+1. **서명 검증**(`verifyWith(key)`): "우리 키로 찍은 도장이 맞는가"를 본다. 키가 다른 곳에서 만든 토큰은 여기서 이미 탈락한다.
+2. **`iss` 검사**(`requireIssuer`): 서명이 통과한 토큰에 대해 "발급자 칸에 `pawgeun`이라고 적혀 있는가"를 한 번 더 본다. 실수로 다른 용도의 토큰이 섞여 들어오는 것을 막는 이중 확인이다.
+
+한계도 알아 두자. `iss`는 **발급하는 쪽이 적어 넣는 글자**일 뿐이다. 만약 같은 키를 다른 서비스와 공유한다면, 그 서비스도 `iss`에 `"pawgeun"`이라고 적어 정상 서명을 할 수 있다. 즉 **`iss`만으로는 키를 공유한 발급자들을 구별할 수 없다.** 발급자 구별의 진짜 근거는 키이므로, 키는 서비스마다 따로 두고 공유하지 않는다.
+
+비유: 도장(서명)이 진짜인지 먼저 보고, 그다음 "발급 기관" 칸을 읽는다. 하지만 같은 도장을 두 구청이 나눠 쓴다면 "발급 기관" 칸은 아무나 적을 수 있으니 믿을 근거가 못 된다.
 
 파싱 라이브러리는 `exp`가 지났으면 알아서 예외를 던진다(`ExpiredJwtException`). 직접 시간 비교 코드를 쓰지 않는다. 직접 쓰면 시간대, 경계값(같은 초) 같은 실수를 하기 쉽다.
 
@@ -105,7 +114,7 @@ Jwts.builder()
     .subject(String.valueOf(memberId))                  // 주체: 회원 id (문자열로)
     .issuedAt(now)                                      // 발급 시각
     .expiration(new Date(now.getTime() + 유효시간))       // 만료 시각 = 지금 + 30분
-    .signWith(key)                                      // 키 길이로 HS256/384/512를 자동 선택
+    .signWith(key, Jwts.SIG.HS256)                      // 서명 알고리즘을 HS256으로 명시
     .compact();                                         // header.payload.signature 문자열로 직렬화
 ```
 

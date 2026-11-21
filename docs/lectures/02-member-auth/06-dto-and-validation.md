@@ -36,6 +36,10 @@ public record SignUpRequest(String email, String password, String nickname) { }
 
 record는 **인쇄된 영수증**이다. 한번 출력되면 내용을 고칠 수 없다(setter 없음, 필드가 `final`). 신청서가 서비스를 거치는 동안 누가 중간에 내용을 바꿔 버릴 걱정이 없다. 데이터를 "전달"만 하는 DTO에 딱 맞는 성질이다.
 
+단, `final`인 것은 **필드가 가리키는 참조**뿐이다. 참조 대상 객체까지 불변이 되는 것은 아니다. `SignUpRequest`의 필드는 모두 `String`이고 `String`은 그 자체로 불변이라 문제없다. 하지만 `List<String> tags` 같은 변경 가능한 컴포넌트를 넣으면, 필드를 다른 리스트로 바꿀 수는 없어도 `tags().add(...)`로 **리스트 내용은 바꿀 수 있다.** 이럴 때는 생성자에서 `List.copyOf(tags)`처럼 방어적 복사를 해 내부 상태를 보호한다.
+
+비유: 영수증 종이는 못 고쳐도, 영수증에 "장바구니 3번"이라고만 적혀 있다면 장바구니 안의 물건은 누군가 바꿀 수 있다. 그래서 장바구니 대신 물건 목록을 영수증에 **직접 인쇄**(복사)해 둔다.
+
 Django의 serializer/form과 비슷한 자리지만, 모양 정의와 검증 규칙이 어노테이션으로 **한곳에** 모인다.
 
 ## 3. Bean Validation: 어노테이션으로 검증

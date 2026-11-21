@@ -10,8 +10,11 @@
 
 ```java
 // JPA 없이: 개발자가 직접 통역
-String sql = "INSERT INTO member (email, nickname) VALUES (?, ?)";
-jdbcTemplate.update(sql, member.getEmail(), member.getNickname());
+// 필수 컬럼(NOT NULL)을 하나라도 빠뜨리면 실행 시 오류가 나므로 전부 직접 챙겨야 한다
+String sql = "INSERT INTO member (email, password_hash, nickname, created_at, updated_at) "
+        + "VALUES (?, ?, ?, ?, ?)";
+LocalDateTime now = LocalDateTime.now();
+jdbcTemplate.update(sql, member.getEmail(), member.getPasswordHash(), member.getNickname(), now, now);
 ```
 
 JPA를 쓰면 객체에게 말하기만 하면 된다.
@@ -118,9 +121,16 @@ memberRepository.saveAndFlush(member);
 
 ### 왜 save가 아니라 saveAndFlush인가
 
-`save`는 SQL을 바로 보내지 않고 **트랜잭션이 커밋될 때까지 미룬다**. 메모에 적어 두고 나중에 한꺼번에 처리하는 것이다. 그러면 예외가 `signUp` 메서드가 다 끝난 뒤(커밋 시점)에야 터져서, 메서드 안의 `try`로 잡을 수 없다.
+일반적으로 JPA는 SQL을 바로 보내지 않고 모아 두었다가 **flush 시점(보통 트랜잭션 커밋 직전)**에 보낸다. 메모에 적어 두고 나중에 한꺼번에 처리하는 것이다. 그러면 예외가 `signUp` 메서드가 다 끝난 뒤(커밋 시점)에야 터져서, 메서드 안의 `try`로 잡을 수 없다.
 
-`saveAndFlush`는 "지금 당장 DB에 보내"라는 뜻이다. 그래서 예외가 그 자리에서 나고, `try`로 잡아 `EMAIL_DUPLICATED`(409)로 바꿀 수 있다.
+그런데 `Member`는 `GenerationType.IDENTITY`를 쓴다. IDENTITY는 **DB가 INSERT를 해야만 id를 알려 준다**(번호표 기계에 실제로 들어가야 번호가 나온다). JPA는 영속화(`persist`)할 때 id가 필요하므로, 새 엔티티라면 `save`만 호출해도 **그 자리에서 INSERT가 실행된다.** 즉 이 프로젝트에서는 `save`만으로도 유니크 제약 위반이 메서드 안에서 터진다.
+
+| 메서드 | 하는 일 | IDENTITY 엔티티 신규 저장 시 |
+| --- | --- | --- |
+| `save` | 영속화(`persist`)만 요청 | id를 얻으려고 INSERT가 즉시 실행된다 |
+| `saveAndFlush` | 영속화 + **flush**: 지금까지 쌓인 변경 사항을 전부 DB로 보낸다 | INSERT는 물론, 같은 트랜잭션에 남아 있던 다른 변경(UPDATE 등)까지 강제로 보낸다 |
+
+그래도 `saveAndFlush`를 쓰는 이유: "DB 반영이 여기서 끝나야 한다"는 의도를 코드에 **명시**하기 위해서다. 나중에 id 전략을 SEQUENCE 등으로 바꾸면 `save`는 다시 INSERT를 미루게 되어 `try`가 예외를 놓친다. `saveAndFlush`는 id 전략과 상관없이 예외가 그 자리에서 나고, `try`로 잡아 `EMAIL_DUPLICATED`(409)로 바꿀 수 있다.
 
 ### 이메일 정규화
 

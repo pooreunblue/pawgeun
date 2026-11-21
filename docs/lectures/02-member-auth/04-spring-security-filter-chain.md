@@ -128,12 +128,14 @@ http
 위에서부터 **먼저 맞는 규칙**이 적용되고 나머지는 보지 않는다. 안내판을 위에서부터 읽다가 해당되는 줄에서 멈추는 것과 같다.
 
 ```java
-// 잘못된 예: anyRequest가 먼저 있으면 모든 요청이 여기서 걸린다
+// 잘못된 예: anyRequest 뒤에 규칙을 더 적었다
 .anyRequest().authenticated()
-.requestMatchers("/api/auth/**").permitAll()   // 여기까지 오는 요청이 없다
+.requestMatchers("/api/auth/**").permitAll()   // 설정 단계에서 IllegalStateException → 서버가 아예 안 뜬다
 ```
 
-그래서 `anyRequest()`는 항상 **마지막**에 둔다. "그 밖의 모든 경우"니까.
+순서 원리대로라면 "뒤 규칙은 영영 안 쓰인다"가 되겠지만, Spring Security(6.x)는 이 실수를 아예 허용하지 않는다. `anyRequest()` 뒤에 `requestMatchers`를 적으면 요청이 들어오기도 전에, **애플리케이션 시작 단계**에서 `IllegalStateException`("Can't configure requestMatchers after anyRequest")을 던져 서버가 뜨지 않는다. 조용히 틀리는 대신 시작부터 크게 실패하게 해 둔 것이다.
+
+그래서 `anyRequest()`는 항상 **마지막**에 둔다. "그 밖의 모든 경우"니까. 다만 `requestMatchers`끼리의 순서 실수(예: 넓은 `/api/**`를 좁은 `/api/auth/**`보다 먼저 적기)는 오류 없이 그대로 동작하므로 직접 조심해야 한다.
 
 ### addFilterBefore: 창구를 어디에 둘까
 
@@ -164,7 +166,7 @@ Security가 `SecurityContext`를 세션에 저장하지 않는다. 요청이 끝
 
 3절의 "표시만 남긴다"가 여기서 쓰인다. 창구 직원은 가짜 밴드를 봐도 승객을 쫓아내지 않고 서류에 "가짜 밴드" 메모만 붙여 보낸다. 게이트에서 막혔을 때, 안내 직원이 그 메모를 보고 "탑승권이 없으세요"가 아니라 **"밴드가 잘못됐어요"**라고 정확히 안내한다. 앱은 이 차이로 "로그인하세요"와 "토큰이 만료됐어요, 다시 로그인하세요"를 구분할 수 있다.
 
-참고: 이 처리기들은 **필터 체인 안에서** 동작하므로 `@RestControllerAdvice`(컨트롤러 이후 단계)가 잡아 주지 못한다. 검색대에서 생긴 문제는 비행기 안 승무원이 처리할 수 없는 것과 같다. 그래서 `HttpServletResponse`에 직접 JSON을 쓴다(07강에서 대비해서 본다).
+참고: 이 처리기들은 **필터 체인 안에서** 동작하므로 `@RestControllerAdvice`(DispatcherServlet 안의 MVC 처리 단계)가 잡아 주지 못한다. 검색대에서 생긴 문제는 비행기 안 승무원이 처리할 수 없는 것과 같다. 그래서 `HttpServletResponse`에 직접 JSON을 쓴다(07강에서 대비해서 본다).
 
 ## 6. 흔한 함정
 

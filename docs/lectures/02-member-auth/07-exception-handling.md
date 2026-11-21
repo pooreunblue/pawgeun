@@ -91,7 +91,9 @@ return ... ErrorResponse.of(ErrorCode.INTERNAL_ERROR); // 응답에는 고정 �
 
 ## 6. 필터에서 난 오류는 별개다
 
-`@RestControllerAdvice`는 **컨트롤러 호출 이후** 단계의 예외만 잡는다. 인증 필터(Security 필터 체인)는 그보다 앞이라, 여기서 나는 401/403은 핸들러가 못 본다.
+`@RestControllerAdvice`는 **DispatcherServlet 안의 MVC 요청 처리 중**에 난 예외를 잡는다. 컨트롤러 메서드 안에서 난 예외만이 아니다. 예를 들어 JSON 문법이 깨진 본문은 컨트롤러 메서드를 **호출하기 전**, 요청 본문을 `SignUpRequest`로 변환하는 단계에서 `HttpMessageNotReadableException`이 나는데, 이것도 MVC 처리의 일부라 `GlobalExceptionHandler.handleUnreadable`이 처리한다(405·415·404도 마찬가지).
+
+반면 인증 필터(Security 필터 체인)는 DispatcherServlet보다 **앞**에서 동작한다. MVC 처리에 들어가기 전이라, 여기서 나는 401/403은 핸들러가 못 본다.
 
 ```text
 요청 → [Security 필터 체인] → DispatcherServlet → 컨트롤러 → 서비스
