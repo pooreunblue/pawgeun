@@ -62,7 +62,7 @@ git checkout -b feature/login-api
 
 ## 3. Pull Request 규칙
 
-- 제목 형식: `[작업 내용]` (예: `[로그인 API 구현]`). Conventional Commit 형식을 쓰려면 `feat: 작업 내용`.
+- 제목 형식: Conventional Commit 형식 `타입: 작업 내용` (예: `feat: 로그인 API 구현`, `docs: 강의 문서 보강`). 타입은 2번 Commit 규칙의 Type 표를 따른다.
 - Description에는 최소한 아래 항목을 포함한다.
 
 ```markdown
